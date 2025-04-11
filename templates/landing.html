@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Analysis Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        .upload-box {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px 0;
+        }
+        #submit-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #submit-button:hover {
+            background-color: #45a049;
+        }
+        #submit-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .file-name {
+            margin-top: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF Analysis Tool</h1>
+        <p>Upload a PDF document to analyze its contents</p>
+        
+        <form id="upload-form" enctype="multipart/form-data">
+            <div class="upload-box">
+                <input type="file" id="pdf-file" accept=".pdf" style="display: none;">
+                <label for="pdf-file" style="cursor: pointer;">
+                    <div>Click to select PDF or drag and drop</div>
+                    <div class="file-name" id="file-name"></div>
+                </label>
+            </div>
+            <button type="submit" id="submit-button" disabled>Upload PDF</button>
+        </form>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('pdf-file');
+        const fileName = document.getElementById('file-name');
+        const submitButton = document.getElementById('submit-button');
+        const form = document.getElementById('upload-form');
+
+        // Handle file selection
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileName.textContent = e.target.files[0].name;
+                submitButton.disabled = false;
+            }
+        });
+
+        // Handle drag and drop
+        const uploadBox = document.querySelector('.upload-box');
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.style.borderColor = '#4CAF50';
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.style.borderColor = '#ccc';
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.style.borderColor = '#ccc';
+            
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                fileName.textContent = e.dataTransfer.files[0].name;
+                submitButton.disabled = false;
+            }
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('pdf', fileInput.files[0]);
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Uploading...';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    window.location.href = '/questions';
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.error}`);
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Upload PDF';
+                }
+            } catch (error) {
+                alert('Error uploading file');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Upload PDF';
+            }
+        });
+    </script>
+</body>
+</html> 
