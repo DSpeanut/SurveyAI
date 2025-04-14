@@ -6,10 +6,6 @@ import numpy as np
 # Define the path to the PDF file
 pdf_path = "data/AI_Information.pdf"
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai_client = OpenAI(api_key= OPENAI_API_KEY)
-        
-
 def extract_text_from_pdf(pdf_path):
     """
     Extracts text from a PDF file.
@@ -88,7 +84,7 @@ def cosine_similarity(vec1, vec2):
     # Compute the dot product of the two vectors
     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
-def retrieve_relevant_chunks(query, text_chunks, chunk_embeddings, k=5):
+def retrieve_relevant_chunks(openai_client,query,text_chunks, chunk_embeddings, k):
     """
     Retrieves the top-k most relevant text chunks.
     
